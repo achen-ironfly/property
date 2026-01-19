@@ -83,10 +83,34 @@ async function navigate(page: Page, selectedAddress: string): Promise<void> {
     await page.waitForTimeout(500);
     await page.click('button:has-text("search")');
     await page.waitForURL(/https:\/\/www\.onthehouse\.com\.au\/real-estate\/.*/, { timeout: 6000 });
+    await page.waitForTimeout(1000);
+
+    let modalClosed = false;
+    try {
+        const closeButton = page.locator('svg.Modal__closeButton--ymLm8').first();
+        if (await closeButton.count() > 0) {
+            console.log('Found close button, clicking...');
+            await closeButton.click({ force: true, timeout: 2000 });
+            await page.waitForTimeout(800);
+            modalClosed = true;
+            console.log('Modal closed successfully');
+        }
+    } catch (e) {
+        console.log('Strategy 1 failed:', e);
+    }
 
     const propertyCards = page.locator('.PropertyCardSearch__propertyCard--FqRCV');
-    await propertyCards.first().waitFor({ state: 'attached', timeout: 6000 });
+    await propertyCards.first().waitFor({ state: 'attached', timeout: 8000 });
     const firstCard = propertyCards.first();
+
+    // Check if card has estimated value
+    const estimatedValueSpan = firstCard.locator('span:has-text("Estimated value")');
+    const hasEstimatedValue = await estimatedValueSpan.count() > 0;
+    if (!hasEstimatedValue) {
+        console.log('No estimated value found in property card');
+        throw new Error('Current property does not have price valuation');
+    }
+
     const link = firstCard.locator('a[href^="/property/"]').first();
     await link.waitFor({ state: 'attached', timeout: 3000 });
     const href = await link.getAttribute('href');
@@ -130,7 +154,6 @@ async function propertyValuation(page: Page, address: string): Promise<{
     }
 }
 
-// Entry 
 async function main() {
     const { selectedAddress, page, browser } = await searchAddress();
     await navigate(page, selectedAddress);
