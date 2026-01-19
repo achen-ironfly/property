@@ -1,0 +1,16 @@
+type Query {
+  search(address: String): [Address]
+  valuation(address: String): Valuation
+}
+
+type Address {
+    id: String
+    address: String
+}
+
+type Valuation {
+    address: String
+    low: String
+    high: String
+    confidence: String
+}
