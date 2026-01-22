@@ -59,17 +59,25 @@ const resolvers = {
                 }
                     
                 const targetAddress = queryAddress || session.selectedAddress;            
-                await navigate(session.page, targetAddress);
+                const hasValuation = await navigate(session.page, targetAddress);
+                
+                if (!hasValuation) {
+                    await session.browser.close();
+                    sessions.delete(sessionId);
+                    return {
+                        address: targetAddress,
+                        low: null,
+                        high: null,
+                        confidence: null,
+                        message: "No valuation available for the specified address"
+                    };
+                }
+                
                 const result = await propertyValuation(session.page, targetAddress);
                 await session.browser.close();
                 sessions.delete(sessionId);
-                    
-                return result || {
-                    address: targetAddress,
-                    low: "N/A",
-                    high: "N/A",
-                    confidence: "N/A"
-                };
+                
+                return result;
             });
         },
     }

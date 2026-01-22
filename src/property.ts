@@ -37,7 +37,7 @@ async function searchAddress(addressInput?: string, autoSelect: boolean = false)
     browser: any;
     context: any;
 }> {
-    const browser = await chromium.launch({ headless: false });
+    const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext();
     const page = await context.newPage();
 
@@ -74,7 +74,7 @@ async function searchAddress(addressInput?: string, autoSelect: boolean = false)
 }
 
 // Navigate to property card page
-async function navigate(page: Page, selectedAddress: string): Promise<void> {
+async function navigate(page: Page, selectedAddress: string): Promise<boolean> {
     await page.fill('input#homeTA', selectedAddress);
     await page.waitForSelector('[role="option"]', { timeout: 5000 }).catch(() => null);
     await page.press('input#homeTA', 'Home');
@@ -108,7 +108,7 @@ async function navigate(page: Page, selectedAddress: string): Promise<void> {
     const hasEstimatedValue = await estimatedValueSpan.count() > 0;
     if (!hasEstimatedValue) {
         console.log('No estimated value found in property card');
-        throw new Error('Current property does not have price valuation');
+        return false;  
     }
 
     const link = firstCard.locator('a[href^="/property/"]').first();
@@ -118,6 +118,7 @@ async function navigate(page: Page, selectedAddress: string): Promise<void> {
         throw new Error('Property card has no href');
     }
     await page.goto(`https://www.onthehouse.com.au${href}`);
+    return true;  
 }
 
 // Property valuation function
@@ -125,7 +126,7 @@ async function propertyValuation(page: Page, address: string): Promise<{
         address: string; 
         low: string | undefined; 
         high: string | undefined; 
-        confidence: string } | undefined> {
+        confidence: string } | { error: string } | undefined> {
     if (!address) return;
     const value = page.locator(".d-flex.justify-content-between.mt-2 .mdText > div");
     await value.first().waitFor({ state: "attached", timeout: 15000 });
@@ -168,7 +169,3 @@ export {
     navigate,
     propertyValuation
 };
-
-
-// 52 walker st, Turrella
-// 1037/1 Finch Dr, Eastgardens

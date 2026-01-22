@@ -13,4 +13,5 @@ type Valuation {
     low: String
     high: String
     confidence: String
+    message: String
 }
