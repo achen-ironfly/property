@@ -19,7 +19,7 @@ export async function createGraphQLServer(app: any) {
         listen: { port: 4000 },
         context: async ({ req }) => {
             const sessionId = req.headers['session-id'] as string || req.headers['sessionid'] as string;
-            console.log(`[HTTP] Incoming request: ${req.method} ${req.url}, sessionId: ${sessionId}`);
+            // console.log(`[HTTP] Incoming request: ${req.method} ${req.url}, sessionId: ${sessionId}`);
             return { 
                 sessionId: sessionId,
                 userId: req.headers['userid'] as string,

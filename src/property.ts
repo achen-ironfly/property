@@ -53,8 +53,8 @@ async function searchAddress(addressInput?: string, autoSelect: boolean = false)
         id: id + 1,
         address: candidate.formattedAddress  
     }));
-    console.log("\n Full candidates list:");
-    console.log(JSON.stringify(candidates, null, 2));
+    console.log(`[Search] get full candidates list`);
+    // console.log(JSON.stringify(candidates, null, 2));
 
     // Let user select from the list
     let selectedId = 0;
@@ -68,7 +68,7 @@ async function searchAddress(addressInput?: string, autoSelect: boolean = false)
         return { candidates, selectedAddress: "", page, browser, context };
     }
     const selected = data.content[selectedId];
-    console.log(`\n Selected: ${selected.formattedAddress}\n`);
+    // console.log(`\n Selected: ${selected.formattedAddress}\n`);
 
     return { candidates, selectedAddress: selected.formattedAddress, page, browser, context };
 }
@@ -148,8 +148,8 @@ async function propertyValuation(page: Page, address: string): Promise<{
             confidence: confidenceText
         };
 
-        console.log("\n Property Valuation:");
-        console.log(JSON.stringify(result, null, 2));
+        console.log(`[Valuation] get property valuation`);
+        // console.log(JSON.stringify(result, null, 2));
         
         return result;
     }

@@ -1,17 +1,92 @@
+"""
+Custom scalar type for representing dates in ISO 8601 format.
+"""
+scalar Date
+scalar JSON
+
+"""
+Represents a reference to a symbol.
+"""
+type Reference {
+  symbol: Symbol! # The associated symbol for this reference.
+  rate: JSON      # The rate or price of the symbol.
+  date: Date!     # The date of the reference in ISO 8601 format.
+}
+
+"""
+Represents a symbol.
+"""
+type Symbol {
+  code: String! # The unique code for the symbol.
+  name: String! # The name of the symbol.
+  currency: String! # The currency code (e.g., USD, EUR).
+}
+
+"""
+Represents a paginated list of symbols.
+"""
+type SymbolConnection {
+  total: Int!      # Total number of symbols available.
+  info: Info!      # Pagination information.
+  nodes: [Symbol]! # List of symbols in the current page.
+}
+
+"""
+Represents a paginated list of references.
+"""
+type ReferenceConnection {
+  total: Int!         # Total number of references available.
+  info: Info!         # Pagination information.
+  nodes: [Reference]! # List of references in the current page.
+}
+
+"""
+Pagination information for connections.
+"""
+type Info {
+  cursor: ID         # The cursor for the current page.
+  hasNext: Boolean!  # Indicates if there is a next page.
+}
+
+"""
+Filter options for querying references.
+"""
+input ReferenceFilter {
+  date: Date! # Filter references by a specific date (ISO 8601 format).
+}
+
+"""
+Options for pagination and additional query parameters.
+"""
+input Option {
+  limit: Int = 10 # Maximum number of items to return (default: 10).
+  cursor: ID      # Cursor for pagination.
+}
+
+"""
+Root query type for fetching data.
+"""
 type Query {
-  search(address: String): [Address]
-  valuation(address: String): Valuation
-}
+  auth(apiKey: String!): String!
+  """
+  Fetch a paginated list of symbols.
+  """
+  symbols(
+    option: Option # Pagination options.
+  ): SymbolConnection!
 
-type Address {
-    id: String
-    address: String
-}
+  """
+  Fetch a specific symbol by its unique code.
+  """
+  symbol(code: String!): [Symbol]
 
-type Valuation {
-    address: String
-    low: String
-    high: String
-    confidence: String
-    message: String
+  """
+  Fetch a paginated list of references based on filters and options.
+  """
+  references(
+    symbol: String, # Symbol code.
+    startDate: Date, # Start date for filtering references (ISO 8601 format).
+    endDate: Date, # End date for filtering references (ISO 8601 format).
+    option: Option # Pagination options.
+  ): ReferenceConnection!
 }
